@@ -126,8 +126,7 @@ export class Game {
     }
 
     private spawnAnimal(position?:Point): void {
-        if(this.animals.length > MAX_ANIMALS_COUNT_ON_GAME_FIELD) {
-            this.clearSpawnIntervalId();
+        if(this.animals.length >= MAX_ANIMALS_COUNT_ON_GAME_FIELD) {
             return;
         }
         
