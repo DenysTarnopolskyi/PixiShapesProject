@@ -1,0 +1,1 @@
+export const BUTTON_CLICK_EVENT = "BUTTON_CLICK_EVENT";

@@ -1,0 +1,11 @@
+body {
+    background: #272d37;
+    padding:0;
+    margin:0;
+    font-family: "Libre Franklin", sans-serif;
+    color:#cfd4db;
+}
+
+p {
+	font-size: 20px;
+}
