@@ -49,10 +49,10 @@ export class Animal extends BaseElement {
                 this.drawPolygon(5, ANIMAL_HEIGHT, 0, 0, 0);
             break;
             case AnimalType.HEXAGON:
-                this.drawPolygon(6, ANIMAL_HEIGHT, 0, 0, 0)
+                this.drawPolygon(6, ANIMAL_HEIGHT, 0, 0, 0);
             break;
             case AnimalType.CIRCLE:
-                this.background.circle(0, 0, ANIMAL_HEIGHT)
+                this.background.circle(0, 0, ANIMAL_HEIGHT);
             break;
             case AnimalType.ELLIPSE:
                 this.background.ellipse(0, 0, ANIMAL_HEIGHT, ANIMAL_HEIGHT * 0.75);

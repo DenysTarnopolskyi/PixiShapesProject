@@ -26,7 +26,7 @@ export class GameButton extends BaseElement {
         let increaseBackground = new Graphics();
         increaseBackground.roundRect(0, 0, BUTTON_WIDTH, BUTTON_HEIGHT, BUTTON_ROUND_RADIUS);
         increaseBackground.fill(BUTTON_COLOR);
-        increaseBackground.stroke({ width: BUTTON_TEXT_STYLE.strokeThickness, color: BUTTON_TEXT_STYLE.stroke })
+        increaseBackground.stroke({ width: BUTTON_TEXT_STYLE.strokeThickness, color: BUTTON_TEXT_STYLE.stroke });
         this.drawButtonTextImage(increaseBackground, "+");
 
         this.increaseButton = new Container();
@@ -41,7 +41,7 @@ export class GameButton extends BaseElement {
         let decreaseButtonBackground = new Graphics();
         decreaseButtonBackground.roundRect(0, 0, BUTTON_WIDTH, BUTTON_HEIGHT, BUTTON_ROUND_RADIUS);
         decreaseButtonBackground.fill(BUTTON_COLOR);
-        decreaseButtonBackground.stroke({ width: BUTTON_TEXT_STYLE.strokeThickness, color: BUTTON_TEXT_STYLE.stroke })
+        decreaseButtonBackground.stroke({ width: BUTTON_TEXT_STYLE.strokeThickness, color: BUTTON_TEXT_STYLE.stroke });
         this.drawButtonTextImage(decreaseButtonBackground, "-");
         
         this.decreaseButton = new Container();

@@ -14,7 +14,6 @@ export class TopPanel extends BaseElement{
     private init(): void {
         this.initCounterText();
         this.initGameAreaText();
-        
         this.updateGameAreaText(0);
         this.updateShapeCounter(0);
     }

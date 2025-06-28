@@ -168,8 +168,8 @@ export class Game {
     private onGameFieldClicked(event: FederatedPointerEvent): void {
         const mouseClickPosition = new Point(event.global.x, event.global.y);
         if(this.gameState === GameState.WIN || this.gameState === GameState.LOSE){
-            this.app.ticker.start()
-            this.startGame()
+            this.app.ticker.start();
+            this.startGame();
         } else if (this.gameState === GameState.GAME){
             this.tryToFindHittedAnimal(mouseClickPosition);
         }
@@ -253,14 +253,14 @@ export class Game {
 
     private clearSpawnIntervalId(): void {
         if(this.spawnIntervalId != -1) {
-            clearInterval(this.spawnIntervalId)
+            clearInterval(this.spawnIntervalId);
             this.spawnIntervalId = -1;
         }
     }
 
     private clearRemoveAnimalTimeoutId(): void {
         if(this.removeAnimalTimeoutId != -1) {
-            clearInterval(this.removeAnimalTimeoutId)
+            clearInterval(this.removeAnimalTimeoutId);
             this.removeAnimalTimeoutId = -1;
         }
     }

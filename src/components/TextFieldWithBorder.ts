@@ -15,7 +15,7 @@ export class TextFieldWithBorder extends BaseElement {
     protected draw() {
         this.background.rect(0, 0, BUTTON_TEXT_STYLE.wordWrapWidth, BUTTON_TEXT_STYLE.wordWrapHeight);
         this.background.fill(BUTTON_TEXT_STYLE.fill);
-        this.background.stroke({ width: BUTTON_TEXT_STYLE.strokeThickness, color: BUTTON_TEXT_STYLE.stroke })
+        this.background.stroke({width: BUTTON_TEXT_STYLE.strokeThickness, color: BUTTON_TEXT_STYLE.stroke});
         this.addChild(this.background);
     }
 
@@ -23,7 +23,7 @@ export class TextFieldWithBorder extends BaseElement {
         this.background.clear();
         this.background.rect(0, 0, this.textField.width + BUTTON_TEXT_STYLE.padding * 2, this.textField.height + BUTTON_TEXT_STYLE.padding * 2);
         this.background.fill(BUTTON_TEXT_STYLE.fill);
-        this.background.stroke({ width: BUTTON_TEXT_STYLE.strokeThickness, color: BUTTON_TEXT_STYLE.stroke })
+        this.background.stroke({width: BUTTON_TEXT_STYLE.strokeThickness, color: BUTTON_TEXT_STYLE.stroke});
     }
 
     private init(): void {
