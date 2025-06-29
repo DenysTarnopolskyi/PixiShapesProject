@@ -1,9 +1,9 @@
 import { Point } from 'pixi.js';
-import { ANIMAL_COLOR } from '../consts/CColor';
-import { ANIMAL_RADIUS as ANIMAL_HEIGHT, GAME_HEIGHT, GAME_WIDTH } from '../consts/CGame';
+import { SHAPE_COLOR } from '../consts/CColor';
+import { GAME_HEIGHT, GAME_WIDTH, SHAPE_WIDTH } from '../consts/CGame';
 import { BaseElement } from './BaseElement';
 
-enum AnimalType {
+enum GameShapeType {
     TRIANGLE,
     SQUARE,
     PENTAGON,
@@ -13,7 +13,7 @@ enum AnimalType {
     STAR
 };
 
-export class Animal extends BaseElement {
+export class GameShape extends BaseElement {
     private gravity: number;
     private type: number;
     private patrolTarget: Point;
@@ -39,29 +39,29 @@ export class Animal extends BaseElement {
 
     private drawBackground() {
         switch(this.type) {
-            case AnimalType.TRIANGLE:
-                this.background.rect(0, 0, ANIMAL_HEIGHT * 2, ANIMAL_HEIGHT * 1.5);
+            case GameShapeType.TRIANGLE:
+                this.background.rect(0, 0, SHAPE_WIDTH * 2, SHAPE_WIDTH * 1.5);
             break;
-            case AnimalType.SQUARE:
-                this.background.rect(0, 0, ANIMAL_HEIGHT * 1.75, ANIMAL_HEIGHT * 1.75);
+            case GameShapeType.SQUARE:
+                this.background.rect(0, 0, SHAPE_WIDTH * 1.75, SHAPE_WIDTH * 1.75);
             break;
-            case AnimalType.PENTAGON:
-                this.drawPolygon(5, ANIMAL_HEIGHT, 0, 0, 0);
+            case GameShapeType.PENTAGON:
+                this.drawPolygon(5, SHAPE_WIDTH, 0, 0, 0);
             break;
-            case AnimalType.HEXAGON:
-                this.drawPolygon(6, ANIMAL_HEIGHT, 0, 0, 0);
+            case GameShapeType.HEXAGON:
+                this.drawPolygon(6, SHAPE_WIDTH, 0, 0, 0);
             break;
-            case AnimalType.CIRCLE:
-                this.background.circle(0, 0, ANIMAL_HEIGHT);
+            case GameShapeType.CIRCLE:
+                this.background.circle(0, 0, SHAPE_WIDTH);
             break;
-            case AnimalType.ELLIPSE:
-                this.background.ellipse(0, 0, ANIMAL_HEIGHT, ANIMAL_HEIGHT * 0.75);
+            case GameShapeType.ELLIPSE:
+                this.background.ellipse(0, 0, SHAPE_WIDTH, SHAPE_WIDTH * 0.75);
             break;
-            case AnimalType.STAR:
-                this.background.star(0, 0, 5, ANIMAL_HEIGHT);
+            case GameShapeType.STAR:
+                this.background.star(0, 0, 5, SHAPE_WIDTH);
             break;
             default:
-                this.background.star(0, 0, 5, ANIMAL_HEIGHT);
+                this.background.star(0, 0, 5, SHAPE_WIDTH);
             break;
         }
     }
@@ -86,7 +86,7 @@ export class Animal extends BaseElement {
     }
 
     private setPatrolTarget(): void {
-        this.patrolTarget = new Point(Math.random() * GAME_WIDTH, GAME_HEIGHT + ANIMAL_HEIGHT * 2);
+        this.patrolTarget = new Point(Math.random() * GAME_WIDTH, GAME_HEIGHT + SHAPE_WIDTH * 2);
     }
 
     private startPatrol(delta: number): void {
@@ -97,11 +97,11 @@ export class Animal extends BaseElement {
         const dx = this.patrolTarget.x - this.x;
         const dy = this.patrolTarget.y - this.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
-        if (distance > ANIMAL_HEIGHT) {
+        if (distance > SHAPE_WIDTH) {
             this.x += (dx / distance) * this.gravity * delta;
             this.y += (dy / distance) * this.gravity * delta;
         } else {
-            this.y = - ANIMAL_HEIGHT;
+            this.y = - SHAPE_WIDTH;
             this.setPatrolTarget();
         }
     }
@@ -114,8 +114,8 @@ export class Animal extends BaseElement {
         this.gravity = value;
     }
     
-    public isAnimaOutSideGameField(): boolean {
-        return this.y > (GAME_HEIGHT + ANIMAL_HEIGHT);
+    public isShapeOutSideGameField(): boolean {
+        return this.y > (GAME_HEIGHT + SHAPE_WIDTH);
     }
 
     public getType(): number {
@@ -134,7 +134,7 @@ export class Animal extends BaseElement {
     }
     
     private getRandomColor(): number {
-        return Math.random() * ANIMAL_COLOR;
+        return Math.random() * SHAPE_COLOR;
     }
 
     public destroy() {

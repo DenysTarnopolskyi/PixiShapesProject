@@ -1,11 +1,11 @@
 import { Application, FederatedPointerEvent, Point, Ticker } from 'pixi.js';
-import { Animal } from './components/Animal';
 import { BottomPanel } from './components/BottomPanel';
 import { GameField } from './components/GameField';
+import { GameShape } from './components/GameShape';
 import { ResultScreen } from './components/ResultScreen';
 import { TopPanel } from './components/TopPanel';
 import { BUTTON_CLICK_EVENT } from './consts/CEvents';
-import { ANIMAL_GRAVITY, ANIMAL_RADIUS, ANIMAL_REMOVE_INTERVAL as ANIMAL_REMOVE_TIME, ANIMAL_SPAWN_INTERVAL, ANIMAL_TYPES_COUNT, GAME_FIELD_PADDING, GAME_HEIGHT, GAME_WIDTH, MAX_ANIMALS_COUNT_ON_GAME_FIELD } from './consts/CGame';
+import { GAME_FIELD_PADDING, GAME_HEIGHT, GAME_WIDTH, MAX_SHAPES_ON_GAME_FIELD, SHAPE_GRAVITY, SHAPE_REMOVE_INTERVAL as SHAPE_REMOVE_TIME, SHAPE_SPAWN_INTERVAL, SHAPE_TYPES_COUNT, SHAPE_WIDTH } from './consts/CGame';
 import { BUTTON_TYPE_GRAVITY, BUTTON_TYPE_NUMBER, TYPE_DECREASE, TYPE_INCREASE } from './consts/CTypes';
 
 enum GameState {
@@ -17,7 +17,7 @@ enum GameState {
 export class Game {
     private app: Application;
     private gameField!: GameField;
-    private animals: Animal[];
+    private shapes: GameShape[];
     private topPanel!: TopPanel;
     private bottomPanel!: BottomPanel;
     private resultScreen!: ResultScreen;
@@ -26,17 +26,17 @@ export class Game {
     private gravity: number = 0;
     private targetType: number = 0;
     private numberOfShapesPerSecond: number = 0;
-    private spawnIntervalId: number;
-    private removeAnimalTimeoutId: number;
+    private shapesCreateIntervalId: number;
+    private shapesRemoveTimeoutId: number;
 
     constructor(app:Application) {
         this.app = app;
         this.targetType = -1;
-        this.spawnIntervalId = -1;
-        this.removeAnimalTimeoutId = -1;
+        this.shapesCreateIntervalId = -1;
+        this.shapesRemoveTimeoutId = -1;
         this.numberOfShapesPerSecond = 1;
-        this.gravity = ANIMAL_GRAVITY;
-        this.animals = [];
+        this.gravity = SHAPE_GRAVITY;
+        this.shapes = [];
 
         this.init();
     }
@@ -72,7 +72,7 @@ export class Game {
     private updateScores(): void {
         this.bottomPanel.updateShapeNumber(this.numberOfShapesPerSecond);
         this.bottomPanel.updateGravity(this.gravity);
-        this.updateAnimalsGravity();
+        this.updateShapesGravity();
     }
 
     private onButtonClicked(data: { name: string; type: string }): void {
@@ -88,7 +88,7 @@ export class Game {
                     this.numberOfShapesPerSecond = 1;
                 }
             }
-            this.startSpawnAnimals();
+            this.startCreatingShapes();
         }
 
         if(data.name === BUTTON_TYPE_GRAVITY) {
@@ -111,41 +111,41 @@ export class Game {
         this.gameState = GameState.GAME;
 
         this.resultScreen.reset();
-        this.removeAnimals();
-        this.startSpawnAnimals();
+        this.removeShapes();
+        this.startCreatingShapes();
     }
 
     private initGameTimer(): void {
         this.app.ticker.add((delta: Ticker) => this.onGameTimerTicked(delta));
     }
 
-    private startSpawnAnimals(): void {
-        this.spawnIntervalId = setInterval(() => {
-            this.spawnAnimal();
-        }, ANIMAL_SPAWN_INTERVAL / this.numberOfShapesPerSecond);
+    private startCreatingShapes(): void {
+        this.shapesCreateIntervalId = setInterval(() => {
+            this.createShape();
+        }, SHAPE_SPAWN_INTERVAL / this.numberOfShapesPerSecond);
     }
 
-    private spawnAnimal(position?:Point): void {
-        if(this.animals.length >= MAX_ANIMALS_COUNT_ON_GAME_FIELD) {
+    private createShape(position?:Point): void {
+        if(this.shapes.length >= MAX_SHAPES_ON_GAME_FIELD) {
             return;
         }
         
-        let animalPosition = position || this.getRandomPosition();
-        const animal = new Animal(animalPosition, this.getEnemyType(), this.gravity);
-        this.animals.push(animal);
-        this.gameField.addChild(animal);
+        let shapePosition = position || this.getRandomPosition();
+        const shape = new GameShape(shapePosition, this.getEnemyType(), this.gravity);
+        this.shapes.push(shape);
+        this.gameField.addChild(shape);
         this.updateShapeCounter();
     }
 
 
-    private updateAnimalsGravity(): void {
-        this.animals.forEach((animal, index) => {
-           animal.updateGravity(this.gravity);
+    private updateShapesGravity(): void {
+        this.shapes.forEach((shape, index) => {
+           shape.updateGravity(this.gravity);
         });
     }
 
     private updateShapeCounter(): void {
-        this.topPanel.updateShapeCounter(this.animals.length);
+        this.topPanel.updateShapeCounter(this.shapes.length);
     }
 
     private updateGameAreaText(): void {
@@ -158,8 +158,8 @@ export class Game {
         }
 
         let deltaTime:number = parseFloat(delta.deltaTime.toFixed(4));
-        this.animals.forEach((animal, index) => {
-            animal.updatePatrolTarget(deltaTime);
+        this.shapes.forEach((shape, index) => {
+            shape.updatePatrolTarget(deltaTime);
         });
     }
 
@@ -170,60 +170,60 @@ export class Game {
             this.app.ticker.start();
             this.startGame();
         } else if (this.gameState === GameState.GAME){
-            this.tryToFindHittedAnimal(mouseClickPosition);
+            this.tryToFindHittedShape(mouseClickPosition);
         }
     }
 
-    private tryToFindHittedAnimal(mouseClickPosition:Point): void {
+    private tryToFindHittedShape(mouseClickPosition:Point): void {
         if(this.targetType != -1) {
             return;
         }
 
-        let target!:Animal;
-        this.animals.forEach((animal, index) => {
-            if(this.checkHitTestMouseWithAnimal(mouseClickPosition, animal) && !target) {
-                target = animal;
+        let target!:GameShape;
+        this.shapes.forEach((shape, index) => {
+            if(this.checkHitTestMouseWithShape(mouseClickPosition, shape) && !target) {
+                target = shape;
             }
         });
 
         if(target) {
-            this.onFindHiddenAnimal(target);
+            this.onFindHitShape(target);
         } else {
-            this.onNotFindHiddenAnimal(mouseClickPosition);
+            this.onNotFindHitShape(mouseClickPosition);
         }
     }
 
-    private onFindHiddenAnimal(target:Animal): void {
+    private onFindHitShape(target:GameShape): void {
         let targetColor = target.getColor();
         this.targetType = target.getType();
-        this.animals.forEach((animal, index) => {
-            if(animal.getType() === this.targetType) {
-                animal.setColor(targetColor);
+        this.shapes.forEach((shape, index) => {
+            if(shape.getType() === this.targetType) {
+                shape.setColor(targetColor);
             }
         });
 
-        let callback = this.removeTargetAnimals.bind(this);
-        this.clearRemoveAnimalTimeoutId();
-        this.removeAnimalTimeoutId = setTimeout(function() {
+        let callback = this.removeTargetShapes.bind(this);
+        this.clearShapesRemoveTimeoutId();
+        this.shapesRemoveTimeoutId = setTimeout(function() {
             callback && callback();
-        }, ANIMAL_REMOVE_TIME); 
+        }, SHAPE_REMOVE_TIME); 
     }
 
-    private onNotFindHiddenAnimal(mouseClickPosition:Point): void {
-        this.spawnAnimal(mouseClickPosition);
+    private onNotFindHitShape(mouseClickPosition:Point): void {
+        this.createShape(mouseClickPosition);
     }
 
-    private checkHitTestMouseWithAnimal(mousePosition:Point, animal: Animal): boolean {
-        const bounds = animal.getBounds();
+    private checkHitTestMouseWithShape(mousePosition:Point, shape: GameShape): boolean {
+        const bounds = shape.getBounds();
         return bounds.containsPoint(mousePosition.x, mousePosition.y);
     }
 
     private getRandomPosition(): Point {
-        return new Point(ANIMAL_RADIUS + Math.random() * (GAME_WIDTH - ANIMAL_RADIUS), - ANIMAL_RADIUS);
+        return new Point(SHAPE_WIDTH + Math.random() * (GAME_WIDTH - SHAPE_WIDTH), - SHAPE_WIDTH);
     }
 
     private getEnemyType(): number {
-        return Math.round(Math.random() * ANIMAL_TYPES_COUNT);
+        return Math.round(Math.random() * SHAPE_TYPES_COUNT);
     }
 
     private getAreaInSquarePixels(): number {
@@ -232,9 +232,9 @@ export class Game {
 
     public destroy() {
         this.app.ticker.remove(this.onGameTimerTicked);
-        this.clearRemoveAnimalTimeoutId();
+        this.clearShapesRemoveTimeoutId();
         this.clearSpawnIntervalId();
-        this.removeAnimals();
+        this.removeShapes();
 
         this.app.stage.removeChild(this.gameField);
         this.app.stage.removeChild(this.topPanel);
@@ -251,41 +251,41 @@ export class Game {
     }
 
     private clearSpawnIntervalId(): void {
-        if(this.spawnIntervalId != -1) {
-            clearInterval(this.spawnIntervalId);
-            this.spawnIntervalId = -1;
+        if(this.shapesCreateIntervalId != -1) {
+            clearInterval(this.shapesCreateIntervalId);
+            this.shapesCreateIntervalId = -1;
         }
     }
 
-    private clearRemoveAnimalTimeoutId(): void {
-        if(this.removeAnimalTimeoutId != -1) {
-            clearInterval(this.removeAnimalTimeoutId);
-            this.removeAnimalTimeoutId = -1;
+    private clearShapesRemoveTimeoutId(): void {
+        if(this.shapesRemoveTimeoutId != -1) {
+            clearInterval(this.shapesRemoveTimeoutId);
+            this.shapesRemoveTimeoutId = -1;
         }
     }
 
-    private removeTargetAnimals(): void {
-        for (var i = this.animals.length-1; i >= 0; i--) {
-            if(this.animals[i].getType() === this.targetType) {
-                this.removeAnimal(this.animals[i], i);
+    private removeTargetShapes(): void {
+        for (var i = this.shapes.length-1; i >= 0; i--) {
+            if(this.shapes[i].getType() === this.targetType) {
+                this.removeShape(this.shapes[i], i);
             }
         }
         this.targetType = -1;
     }
 
-    private removeAnimals(): void {
-        if(!this.animals.length) {
+    private removeShapes(): void {
+        if(!this.shapes.length) {
             return;
         }
-        for (var i = this.animals.length-1; i >= 0; i--) {
-            this.removeAnimal(this.animals[i], i);
+        for (var i = this.shapes.length-1; i >= 0; i--) {
+            this.removeShape(this.shapes[i], i);
         }
-        this.animals = [];
+        this.shapes = [];
     }
 
-    private removeAnimal(animal: Animal, index:number): void {
-        this.gameField.removeChild(animal);
-        this.animals.splice(index, 1);
-        animal.destroy();
+    private removeShape(shape: GameShape, index:number): void {
+        this.gameField.removeChild(shape);
+        this.shapes.splice(index, 1);
+        shape.destroy();
     }
 }
